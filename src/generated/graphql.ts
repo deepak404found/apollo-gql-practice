@@ -1,5 +1,5 @@
-import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import gql from 'graphql-tag';
+import {GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig} from 'graphql';
+
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -7,6 +7,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -88,16 +89,92 @@ export type Scalars = {
   Void: { input: any; output: any; }
 };
 
+export type BadUserInput = Error & {
+  __typename?: 'BadUserInput';
+  code: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+};
+
+export type CreateUserResults = BadUserInput | InternalServerError | PasswordIncorrect | User | UserExists;
+
+export type Error = {
+  code: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+};
+
+export type Forbidden = Error & {
+  __typename?: 'Forbidden';
+  code: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+};
+
+export type InternalServerError = Error & {
+  __typename?: 'InternalServerError';
+  code: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  createUser?: Maybe<CreateUserResults>;
+};
+
+
+export type MutationCreateUserArgs = {
+  form: UserInput;
+};
+
+export type NotFound = Error & {
+  __typename?: 'NotFound';
+  code: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+};
+
+export type PasswordIncorrect = {
+  __typename?: 'PasswordIncorrect';
+  message: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
+  getUser?: Maybe<UserResults>;
   hello?: Maybe<Scalars['String']['output']>;
   myDate?: Maybe<Scalars['Date']['output']>;
 };
 
+
+export type QueryGetUserArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type Unauthorized = Error & {
+  __typename?: 'Unauthorized';
+  code: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+};
+
 export type User = {
   __typename?: 'User';
-  man?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTimeISO']['output'];
+  fullName: Scalars['String']['output'];
+  password: Scalars['String']['output'];
+  uid: Scalars['ID']['output'];
+  username: Scalars['String']['output'];
 };
+
+export type UserExists = {
+  __typename?: 'UserExists';
+  message: Scalars['String']['output'];
+  username: Scalars['String']['output'];
+};
+
+export type UserInput = {
+  fullName: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  username: Scalars['String']['input'];
+};
+
+export type UserResults = BadUserInput | Forbidden | InternalServerError | NotFound | Unauthorized | User;
 
 
 
@@ -166,15 +243,26 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+/** Mapping of union types */
+export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
+  CreateUserResults: (BadUserInput) | (InternalServerError) | (PasswordIncorrect) | (User) | (UserExists);
+  UserResults: (BadUserInput) | (Forbidden) | (InternalServerError) | (NotFound) | (Unauthorized) | (User);
+};
 
+/** Mapping of interface types */
+export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = {
+  Error: (BadUserInput) | (Forbidden) | (InternalServerError) | (NotFound) | (Unauthorized);
+};
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   AccountNumber: ResolverTypeWrapper<Scalars['AccountNumber']['output']>;
+  BadUserInput: ResolverTypeWrapper<BadUserInput>;
   BigInt: ResolverTypeWrapper<Scalars['BigInt']['output']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Byte: ResolverTypeWrapper<Scalars['Byte']['output']>;
   CountryCode: ResolverTypeWrapper<Scalars['CountryCode']['output']>;
+  CreateUserResults: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateUserResults']>;
   Cuid: ResolverTypeWrapper<Scalars['Cuid']['output']>;
   Currency: ResolverTypeWrapper<Scalars['Currency']['output']>;
   DID: ResolverTypeWrapper<Scalars['DID']['output']>;
@@ -185,20 +273,25 @@ export type ResolversTypes = {
   Duration: ResolverTypeWrapper<Scalars['Duration']['output']>;
   Email: ResolverTypeWrapper<Scalars['Email']['output']>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']['output']>;
+  Error: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Error']>;
   FilterLimit: ResolverTypeWrapper<Scalars['FilterLimit']['output']>;
   FilterSkip: ResolverTypeWrapper<Scalars['FilterSkip']['output']>;
+  Forbidden: ResolverTypeWrapper<Forbidden>;
   GUID: ResolverTypeWrapper<Scalars['GUID']['output']>;
   HSL: ResolverTypeWrapper<Scalars['HSL']['output']>;
   HSLA: ResolverTypeWrapper<Scalars['HSLA']['output']>;
   HexColorCode: ResolverTypeWrapper<Scalars['HexColorCode']['output']>;
   Hexadecimal: ResolverTypeWrapper<Scalars['Hexadecimal']['output']>;
   IBAN: ResolverTypeWrapper<Scalars['IBAN']['output']>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   IP: ResolverTypeWrapper<Scalars['IP']['output']>;
   IPCPatent: ResolverTypeWrapper<Scalars['IPCPatent']['output']>;
   IPv4: ResolverTypeWrapper<Scalars['IPv4']['output']>;
   IPv6: ResolverTypeWrapper<Scalars['IPv6']['output']>;
   ISBN: ResolverTypeWrapper<Scalars['ISBN']['output']>;
   ISO8601Duration: ResolverTypeWrapper<Scalars['ISO8601Duration']['output']>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  InternalServerError: ResolverTypeWrapper<InternalServerError>;
   JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
   JSONObject: ResolverTypeWrapper<Scalars['JSONObject']['output']>;
   JWT: ResolverTypeWrapper<Scalars['JWT']['output']>;
@@ -212,6 +305,7 @@ export type ResolversTypes = {
   Long: ResolverTypeWrapper<Scalars['Long']['output']>;
   Longitude: ResolverTypeWrapper<Scalars['Longitude']['output']>;
   MAC: ResolverTypeWrapper<Scalars['MAC']['output']>;
+  Mutation: ResolverTypeWrapper<{}>;
   NegativeFloat: ResolverTypeWrapper<Scalars['NegativeFloat']['output']>;
   NegativeInt: ResolverTypeWrapper<Scalars['NegativeInt']['output']>;
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']['output']>;
@@ -219,7 +313,9 @@ export type ResolversTypes = {
   NonNegativeInt: ResolverTypeWrapper<Scalars['NonNegativeInt']['output']>;
   NonPositiveFloat: ResolverTypeWrapper<Scalars['NonPositiveFloat']['output']>;
   NonPositiveInt: ResolverTypeWrapper<Scalars['NonPositiveInt']['output']>;
+  NotFound: ResolverTypeWrapper<NotFound>;
   ObjectID: ResolverTypeWrapper<Scalars['ObjectID']['output']>;
+  PasswordIncorrect: ResolverTypeWrapper<PasswordIncorrect>;
   PhoneNumber: ResolverTypeWrapper<Scalars['PhoneNumber']['output']>;
   Port: ResolverTypeWrapper<Scalars['Port']['output']>;
   PositiveFloat: ResolverTypeWrapper<Scalars['PositiveFloat']['output']>;
@@ -238,9 +334,13 @@ export type ResolversTypes = {
   URL: ResolverTypeWrapper<Scalars['URL']['output']>;
   USCurrency: ResolverTypeWrapper<Scalars['USCurrency']['output']>;
   UUID: ResolverTypeWrapper<Scalars['UUID']['output']>;
+  Unauthorized: ResolverTypeWrapper<Unauthorized>;
   UnsignedFloat: ResolverTypeWrapper<Scalars['UnsignedFloat']['output']>;
   UnsignedInt: ResolverTypeWrapper<Scalars['UnsignedInt']['output']>;
   User: ResolverTypeWrapper<User>;
+  UserExists: ResolverTypeWrapper<UserExists>;
+  UserInput: UserInput;
+  UserResults: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserResults']>;
   UtcOffset: ResolverTypeWrapper<Scalars['UtcOffset']['output']>;
   Void: ResolverTypeWrapper<Scalars['Void']['output']>;
 };
@@ -248,10 +348,12 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   AccountNumber: Scalars['AccountNumber']['output'];
+  BadUserInput: BadUserInput;
   BigInt: Scalars['BigInt']['output'];
   Boolean: Scalars['Boolean']['output'];
   Byte: Scalars['Byte']['output'];
   CountryCode: Scalars['CountryCode']['output'];
+  CreateUserResults: ResolversUnionTypes<ResolversParentTypes>['CreateUserResults'];
   Cuid: Scalars['Cuid']['output'];
   Currency: Scalars['Currency']['output'];
   DID: Scalars['DID']['output'];
@@ -262,20 +364,25 @@ export type ResolversParentTypes = {
   Duration: Scalars['Duration']['output'];
   Email: Scalars['Email']['output'];
   EmailAddress: Scalars['EmailAddress']['output'];
+  Error: ResolversInterfaceTypes<ResolversParentTypes>['Error'];
   FilterLimit: Scalars['FilterLimit']['output'];
   FilterSkip: Scalars['FilterSkip']['output'];
+  Forbidden: Forbidden;
   GUID: Scalars['GUID']['output'];
   HSL: Scalars['HSL']['output'];
   HSLA: Scalars['HSLA']['output'];
   HexColorCode: Scalars['HexColorCode']['output'];
   Hexadecimal: Scalars['Hexadecimal']['output'];
   IBAN: Scalars['IBAN']['output'];
+  ID: Scalars['ID']['output'];
   IP: Scalars['IP']['output'];
   IPCPatent: Scalars['IPCPatent']['output'];
   IPv4: Scalars['IPv4']['output'];
   IPv6: Scalars['IPv6']['output'];
   ISBN: Scalars['ISBN']['output'];
   ISO8601Duration: Scalars['ISO8601Duration']['output'];
+  Int: Scalars['Int']['output'];
+  InternalServerError: InternalServerError;
   JSON: Scalars['JSON']['output'];
   JSONObject: Scalars['JSONObject']['output'];
   JWT: Scalars['JWT']['output'];
@@ -289,6 +396,7 @@ export type ResolversParentTypes = {
   Long: Scalars['Long']['output'];
   Longitude: Scalars['Longitude']['output'];
   MAC: Scalars['MAC']['output'];
+  Mutation: {};
   NegativeFloat: Scalars['NegativeFloat']['output'];
   NegativeInt: Scalars['NegativeInt']['output'];
   NonEmptyString: Scalars['NonEmptyString']['output'];
@@ -296,7 +404,9 @@ export type ResolversParentTypes = {
   NonNegativeInt: Scalars['NonNegativeInt']['output'];
   NonPositiveFloat: Scalars['NonPositiveFloat']['output'];
   NonPositiveInt: Scalars['NonPositiveInt']['output'];
+  NotFound: NotFound;
   ObjectID: Scalars['ObjectID']['output'];
+  PasswordIncorrect: PasswordIncorrect;
   PhoneNumber: Scalars['PhoneNumber']['output'];
   Port: Scalars['Port']['output'];
   PositiveFloat: Scalars['PositiveFloat']['output'];
@@ -315,9 +425,13 @@ export type ResolversParentTypes = {
   URL: Scalars['URL']['output'];
   USCurrency: Scalars['USCurrency']['output'];
   UUID: Scalars['UUID']['output'];
+  Unauthorized: Unauthorized;
   UnsignedFloat: Scalars['UnsignedFloat']['output'];
   UnsignedInt: Scalars['UnsignedInt']['output'];
   User: User;
+  UserExists: UserExists;
+  UserInput: UserInput;
+  UserResults: ResolversUnionTypes<ResolversParentTypes>['UserResults'];
   UtcOffset: Scalars['UtcOffset']['output'];
   Void: Scalars['Void']['output'];
 };
@@ -342,6 +456,12 @@ export interface AccountNumberScalarConfig extends GraphQLScalarTypeConfig<Resol
   name: 'AccountNumber';
 }
 
+export type BadUserInputResolvers<ContextType = any, ParentType extends ResolversParentTypes['BadUserInput'] = ResolversParentTypes['BadUserInput']> = {
+  code?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigInt'], any> {
   name: 'BigInt';
 }
@@ -353,6 +473,10 @@ export interface ByteScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export interface CountryCodeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['CountryCode'], any> {
   name: 'CountryCode';
 }
+
+export type CreateUserResultsResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateUserResults'] = ResolversParentTypes['CreateUserResults']> = {
+  __resolveType: TypeResolveFn<'BadUserInput' | 'InternalServerError' | 'PasswordIncorrect' | 'User' | 'UserExists', ParentType, ContextType>;
+};
 
 export interface CuidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Cuid'], any> {
   name: 'Cuid';
@@ -394,6 +518,12 @@ export interface EmailAddressScalarConfig extends GraphQLScalarTypeConfig<Resolv
   name: 'EmailAddress';
 }
 
+export type ErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = {
+  __resolveType: TypeResolveFn<'BadUserInput' | 'Forbidden' | 'InternalServerError' | 'NotFound' | 'Unauthorized', ParentType, ContextType>;
+  code?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
 export interface FilterLimitScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['FilterLimit'], any> {
   name: 'FilterLimit';
 }
@@ -401,6 +531,12 @@ export interface FilterLimitScalarConfig extends GraphQLScalarTypeConfig<Resolve
 export interface FilterSkipScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['FilterSkip'], any> {
   name: 'FilterSkip';
 }
+
+export type ForbiddenResolvers<ContextType = any, ParentType extends ResolversParentTypes['Forbidden'] = ResolversParentTypes['Forbidden']> = {
+  code?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export interface GuidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['GUID'], any> {
   name: 'GUID';
@@ -449,6 +585,12 @@ export interface IsbnScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export interface Iso8601DurationScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['ISO8601Duration'], any> {
   name: 'ISO8601Duration';
 }
+
+export type InternalServerErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['InternalServerError'] = ResolversParentTypes['InternalServerError']> = {
+  code?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
   name: 'JSON';
@@ -502,6 +644,10 @@ export interface MacScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes[
   name: 'MAC';
 }
 
+export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  createUser?: Resolver<Maybe<ResolversTypes['CreateUserResults']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'form'>>;
+};
+
 export interface NegativeFloatScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['NegativeFloat'], any> {
   name: 'NegativeFloat';
 }
@@ -530,9 +676,20 @@ export interface NonPositiveIntScalarConfig extends GraphQLScalarTypeConfig<Reso
   name: 'NonPositiveInt';
 }
 
+export type NotFoundResolvers<ContextType = any, ParentType extends ResolversParentTypes['NotFound'] = ResolversParentTypes['NotFound']> = {
+  code?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface ObjectIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['ObjectID'], any> {
   name: 'ObjectID';
 }
+
+export type PasswordIncorrectResolvers<ContextType = any, ParentType extends ResolversParentTypes['PasswordIncorrect'] = ResolversParentTypes['PasswordIncorrect']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export interface PhoneNumberScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['PhoneNumber'], any> {
   name: 'PhoneNumber';
@@ -555,6 +712,7 @@ export interface PostalCodeScalarConfig extends GraphQLScalarTypeConfig<Resolver
 }
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  getUser?: Resolver<Maybe<ResolversTypes['UserResults']>, ParentType, ContextType, RequireFields<QueryGetUserArgs, 'id'>>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   myDate?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
 };
@@ -603,6 +761,12 @@ export interface UuidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'UUID';
 }
 
+export type UnauthorizedResolvers<ContextType = any, ParentType extends ResolversParentTypes['Unauthorized'] = ResolversParentTypes['Unauthorized']> = {
+  code?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface UnsignedFloatScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['UnsignedFloat'], any> {
   name: 'UnsignedFloat';
 }
@@ -612,8 +776,22 @@ export interface UnsignedIntScalarConfig extends GraphQLScalarTypeConfig<Resolve
 }
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
-  man?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTimeISO'], ParentType, ContextType>;
+  fullName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserExistsResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserExists'] = ResolversParentTypes['UserExists']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserResultsResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserResults'] = ResolversParentTypes['UserResults']> = {
+  __resolveType: TypeResolveFn<'BadUserInput' | 'Forbidden' | 'InternalServerError' | 'NotFound' | 'Unauthorized' | 'User', ParentType, ContextType>;
 };
 
 export interface UtcOffsetScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['UtcOffset'], any> {
@@ -626,9 +804,11 @@ export interface VoidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type Resolvers<ContextType = any> = {
   AccountNumber?: GraphQLScalarType;
+  BadUserInput?: BadUserInputResolvers<ContextType>;
   BigInt?: GraphQLScalarType;
   Byte?: GraphQLScalarType;
   CountryCode?: GraphQLScalarType;
+  CreateUserResults?: CreateUserResultsResolvers<ContextType>;
   Cuid?: GraphQLScalarType;
   Currency?: GraphQLScalarType;
   DID?: GraphQLScalarType;
@@ -639,8 +819,10 @@ export type Resolvers<ContextType = any> = {
   Duration?: GraphQLScalarType;
   Email?: GraphQLScalarType;
   EmailAddress?: GraphQLScalarType;
+  Error?: ErrorResolvers<ContextType>;
   FilterLimit?: GraphQLScalarType;
   FilterSkip?: GraphQLScalarType;
+  Forbidden?: ForbiddenResolvers<ContextType>;
   GUID?: GraphQLScalarType;
   HSL?: GraphQLScalarType;
   HSLA?: GraphQLScalarType;
@@ -653,6 +835,7 @@ export type Resolvers<ContextType = any> = {
   IPv6?: GraphQLScalarType;
   ISBN?: GraphQLScalarType;
   ISO8601Duration?: GraphQLScalarType;
+  InternalServerError?: InternalServerErrorResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   JSONObject?: GraphQLScalarType;
   JWT?: GraphQLScalarType;
@@ -666,6 +849,7 @@ export type Resolvers<ContextType = any> = {
   Long?: GraphQLScalarType;
   Longitude?: GraphQLScalarType;
   MAC?: GraphQLScalarType;
+  Mutation?: MutationResolvers<ContextType>;
   NegativeFloat?: GraphQLScalarType;
   NegativeInt?: GraphQLScalarType;
   NonEmptyString?: GraphQLScalarType;
@@ -673,7 +857,9 @@ export type Resolvers<ContextType = any> = {
   NonNegativeInt?: GraphQLScalarType;
   NonPositiveFloat?: GraphQLScalarType;
   NonPositiveInt?: GraphQLScalarType;
+  NotFound?: NotFoundResolvers<ContextType>;
   ObjectID?: GraphQLScalarType;
+  PasswordIncorrect?: PasswordIncorrectResolvers<ContextType>;
   PhoneNumber?: GraphQLScalarType;
   Port?: GraphQLScalarType;
   PositiveFloat?: GraphQLScalarType;
@@ -691,9 +877,12 @@ export type Resolvers<ContextType = any> = {
   URL?: GraphQLScalarType;
   USCurrency?: GraphQLScalarType;
   UUID?: GraphQLScalarType;
+  Unauthorized?: UnauthorizedResolvers<ContextType>;
   UnsignedFloat?: GraphQLScalarType;
   UnsignedInt?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
+  UserExists?: UserExistsResolvers<ContextType>;
+  UserResults?: UserResultsResolvers<ContextType>;
   UtcOffset?: GraphQLScalarType;
   Void?: GraphQLScalarType;
 };

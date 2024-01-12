@@ -1,0 +1,34 @@
+type User {
+    uid: ID!
+    fullName: String!
+    username: String!
+    password: String!
+    createdAt: DateTimeISO!
+    #    posts: [Post!]!
+}
+
+input UserInput {
+    fullName: String!
+    username: String!
+    password: String!
+}
+
+type UserExists {
+    message: String!
+    username: String!
+}
+
+type PasswordIncorrect {
+    message: String!
+}
+
+union UserResults = User | BadUserInput | NotFound | Unauthorized | Forbidden | InternalServerError
+union CreateUserResults = User | UserExists | BadUserInput | InternalServerError | PasswordIncorrect
+
+type Query {
+    getUser(id: ID!): UserResults
+}
+
+type Mutation {
+    createUser(form:UserInput!): CreateUserResults
+}

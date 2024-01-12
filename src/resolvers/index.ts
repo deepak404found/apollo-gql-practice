@@ -1,8 +1,9 @@
-import { merge } from 'lodash'
-import { GraphQLScalarType, GraphQLError, Kind } from 'graphql'
-import { Resolvers } from '../generated/graphql'
+import {merge} from 'lodash'
+import {GraphQLError, GraphQLScalarType, Kind} from 'graphql'
+import {Resolvers} from '@graphql'
 import HelloResolvers from './hello'
-import { resolvers as GraphqlScalarResolvers } from 'graphql-scalars'
+import {resolvers as GraphqlScalarResolvers} from 'graphql-scalars'
+import UserResolvers from "./UserResolvers";
 
 const EMAIL_ADDRESS_REGEX =
 	/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -114,4 +115,4 @@ const resolvers: Resolvers = {
 	FilterLimit: FilterLimitScalar,
 }
 
-export default merge(resolvers, HelloResolvers, GraphqlScalarResolvers)
+export default merge(resolvers, HelloResolvers, GraphqlScalarResolvers, UserResolvers)
