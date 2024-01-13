@@ -19,6 +19,14 @@ type UserResult {
     payload: [User]
 }
 
+type UserExists {   
+    message: String!
+    username: String
+}
+
+union UserResult = User | NotFound | BadUserInput | Unauthorized | InternalServerError
+union CreateUserResult = User | BadUserInput | InternalServerError | UserExists
+
 type Query {
     getUser(uid: String!): UserResult
     getUsers: UserResult
@@ -27,5 +35,5 @@ type Query {
 type Mutation {
     createUser(
         form: UserInput!
-    ): User
+    ): CreateUserResult
 }

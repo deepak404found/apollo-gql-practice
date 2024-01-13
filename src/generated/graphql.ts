@@ -95,6 +95,8 @@ export type BadUserInput = Error & {
   message: Scalars['String']['output'];
 };
 
+export type CreateUserResult = BadUserInput | InternalServerError | User | UserExists;
+
 export type Error = {
   code: Scalars['Int']['output'];
   message: Scalars['String']['output'];
@@ -114,7 +116,7 @@ export type InternalServerError = Error & {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createUser?: Maybe<User>;
+  createUser?: Maybe<CreateUserResult>;
 };
 
 
@@ -158,19 +160,19 @@ export type User = {
   username?: Maybe<Scalars['String']['output']>;
 };
 
+export type UserExists = {
+  __typename?: 'UserExists';
+  message: Scalars['String']['output'];
+  username?: Maybe<Scalars['String']['output']>;
+};
+
 export type UserInput = {
   fullname?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type UserResult = {
-  __typename?: 'UserResult';
-  code?: Maybe<Scalars['Int']['output']>;
-  message?: Maybe<Scalars['String']['output']>;
-  payload?: Maybe<Array<Maybe<User>>>;
-  success?: Maybe<Scalars['Boolean']['output']>;
-};
+export type UserResult = BadUserInput | InternalServerError | NotFound | Unauthorized | User;
 
 export type HelloMessage = {
   __typename?: 'helloMessage';
@@ -251,7 +253,9 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
+  CreateUserResult: ( BadUserInput ) | ( InternalServerError ) | ( User ) | ( UserExists );
   Result: ( HelloMessage ) | ( HelloNumber );
+  UserResult: ( BadUserInput ) | ( InternalServerError ) | ( NotFound ) | ( Unauthorized ) | ( User );
 };
 
 /** Mapping of interface types */
@@ -267,6 +271,7 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Byte: ResolverTypeWrapper<Scalars['Byte']['output']>;
   CountryCode: ResolverTypeWrapper<Scalars['CountryCode']['output']>;
+  CreateUserResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateUserResult']>;
   Cuid: ResolverTypeWrapper<Scalars['Cuid']['output']>;
   Currency: ResolverTypeWrapper<Scalars['Currency']['output']>;
   DID: ResolverTypeWrapper<Scalars['DID']['output']>;
@@ -342,8 +347,9 @@ export type ResolversTypes = {
   UnsignedFloat: ResolverTypeWrapper<Scalars['UnsignedFloat']['output']>;
   UnsignedInt: ResolverTypeWrapper<Scalars['UnsignedInt']['output']>;
   User: ResolverTypeWrapper<User>;
+  UserExists: ResolverTypeWrapper<UserExists>;
   UserInput: UserInput;
-  UserResult: ResolverTypeWrapper<UserResult>;
+  UserResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserResult']>;
   UtcOffset: ResolverTypeWrapper<Scalars['UtcOffset']['output']>;
   Void: ResolverTypeWrapper<Scalars['Void']['output']>;
   helloMessage: ResolverTypeWrapper<HelloMessage>;
@@ -358,6 +364,7 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   Byte: Scalars['Byte']['output'];
   CountryCode: Scalars['CountryCode']['output'];
+  CreateUserResult: ResolversUnionTypes<ResolversParentTypes>['CreateUserResult'];
   Cuid: Scalars['Cuid']['output'];
   Currency: Scalars['Currency']['output'];
   DID: Scalars['DID']['output'];
@@ -433,8 +440,9 @@ export type ResolversParentTypes = {
   UnsignedFloat: Scalars['UnsignedFloat']['output'];
   UnsignedInt: Scalars['UnsignedInt']['output'];
   User: User;
+  UserExists: UserExists;
   UserInput: UserInput;
-  UserResult: UserResult;
+  UserResult: ResolversUnionTypes<ResolversParentTypes>['UserResult'];
   UtcOffset: Scalars['UtcOffset']['output'];
   Void: Scalars['Void']['output'];
   helloMessage: HelloMessage;
@@ -478,6 +486,10 @@ export interface ByteScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export interface CountryCodeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['CountryCode'], any> {
   name: 'CountryCode';
 }
+
+export type CreateUserResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateUserResult'] = ResolversParentTypes['CreateUserResult']> = {
+  __resolveType: TypeResolveFn<'BadUserInput' | 'InternalServerError' | 'User' | 'UserExists', ParentType, ContextType>;
+};
 
 export interface CuidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Cuid'], any> {
   name: 'Cuid';
@@ -646,7 +658,7 @@ export interface MacScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes[
 }
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  createUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'form'>>;
+  createUser?: Resolver<Maybe<ResolversTypes['CreateUserResult']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'form'>>;
 };
 
 export interface NegativeFloatScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['NegativeFloat'], any> {
@@ -785,12 +797,14 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type UserResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserResult'] = ResolversParentTypes['UserResult']> = {
-  code?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  payload?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
-  success?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+export type UserExistsResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserExists'] = ResolversParentTypes['UserExists']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserResult'] = ResolversParentTypes['UserResult']> = {
+  __resolveType: TypeResolveFn<'BadUserInput' | 'InternalServerError' | 'NotFound' | 'Unauthorized' | 'User', ParentType, ContextType>;
 };
 
 export interface UtcOffsetScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['UtcOffset'], any> {
@@ -817,6 +831,7 @@ export type Resolvers<ContextType = any> = {
   BigInt?: GraphQLScalarType;
   Byte?: GraphQLScalarType;
   CountryCode?: GraphQLScalarType;
+  CreateUserResult?: CreateUserResultResolvers<ContextType>;
   Cuid?: GraphQLScalarType;
   Currency?: GraphQLScalarType;
   DID?: GraphQLScalarType;
@@ -889,6 +904,7 @@ export type Resolvers<ContextType = any> = {
   UnsignedFloat?: GraphQLScalarType;
   UnsignedInt?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
+  UserExists?: UserExistsResolvers<ContextType>;
   UserResult?: UserResultResolvers<ContextType>;
   UtcOffset?: GraphQLScalarType;
   Void?: GraphQLScalarType;
