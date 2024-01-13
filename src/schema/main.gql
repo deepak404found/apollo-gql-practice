@@ -13,11 +13,17 @@ directive @admin on FIELD_DEFINITION
 "required Authorization header with valid access key & secret key"
 directive @serviceAccount on FIELD_DEFINITION
 
-type Query {
-	hello: String
-	myDate: Date
+type helloMessage {
+	message: String
 }
 
-type User {
-	man: String
+type helloNumber {
+	number: Int
+}
+
+union Result = helloMessage | helloNumber
+
+type Query {
+	hello: Result
+	myDate: Date
 }

@@ -23,6 +23,9 @@ dependencies:
   '@types/jsonwebtoken':
     specifier: ^9.0.5
     version: 9.0.5
+  '@types/uuid':
+    specifier: ^9.0.7
+    version: 9.0.7
   argon2:
     specifier: ^0.31.2
     version: 0.31.2
@@ -50,6 +53,9 @@ dependencies:
   require-all:
     specifier: ^3.0.0
     version: 3.0.0
+  uuid:
+    specifier: ^9.0.1
+    version: 9.0.1
 
 devDependencies:
   '@graphql-codegen/cli':
@@ -2033,6 +2039,10 @@ packages:
       '@types/http-errors': 2.0.4
       '@types/mime': 3.0.4
       '@types/node': 20.10.6
+    dev: false
+
+  /@types/uuid@9.0.7:
+    resolution: {integrity: sha512-WUtIVRUZ9i5dYXefDEAI7sh9/O7jGvHg7Df/5O/gtH3Yabe5odI3UWopVR1qbPXQtvOxWu3mM4XxlYeZtMWF4g==}
     dev: false
 
   /@types/webidl-conversions@7.0.3:
