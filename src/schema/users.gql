@@ -2,9 +2,14 @@ type User {
     uid: ID!
     fullName: String!
     username: String!
-    password: String!
     createdAt: DateTimeISO!
     #    posts: [Post!]!
+}
+
+type LoginUser {
+    user: User!
+    accessToken: String!
+    refreshToken: String!
 }
 
 input UserInput {
@@ -24,11 +29,13 @@ type PasswordIncorrect {
 
 union UserResults = User | BadUserInput | NotFound | Unauthorized | Forbidden | InternalServerError
 union CreateUserResults = User | UserExists | BadUserInput | InternalServerError | PasswordIncorrect
+union LoginUserResults = LoginUser | BadUserInput | NotFound | Unauthorized | Forbidden | InternalServerError
 
 type Query {
-    getUser(id: ID!): UserResults
+    getUser: UserResults @auth
 }
 
 type Mutation {
     createUser(form:UserInput!): CreateUserResults
+    login(username: String!, password: String!): LoginUserResults
 }

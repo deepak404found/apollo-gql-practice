@@ -1,13 +1,16 @@
-import { ApolloServer } from '@apollo/server'
-import { startStandaloneServer } from '@apollo/server/standalone'
-import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader'
-import { loadSchemaSync } from '@graphql-tools/load'
-import { makeExecutableSchema } from '@graphql-tools/schema'
+import {ApolloServer} from '@apollo/server'
+import {startStandaloneServer} from '@apollo/server/standalone'
+import {GraphQLFileLoader} from '@graphql-tools/graphql-file-loader'
+import {loadSchemaSync} from '@graphql-tools/load'
+import {makeExecutableSchema} from '@graphql-tools/schema'
 import Resolvers from './resolvers/index'
-import { typeDefs as ScalarTypeDefs } from 'graphql-scalars'
+import {typeDefs as ScalarTypeDefs} from 'graphql-scalars'
 import mongoose from 'mongoose'
-import { vars } from './env'
-import { networkInterfaces } from 'os'
+import {vars} from './env'
+import {networkInterfaces} from 'os'
+import {TokenResult, verifyAccessToken} from "./controller/auth";
+import {UserDoc} from "./models/UsersModel";
+import {authDirectiveTransform} from "./directives/authDirective";
 
 const typeDefs = loadSchemaSync('src/schema/**/*.gql', {
 	loaders: [new GraphQLFileLoader()],
@@ -19,6 +22,8 @@ let mods = makeExecutableSchema({
 	typeDefs: [typeDefs, ScalarTypeDefs],
 	resolvers: Resolvers,
 })
+
+mods = authDirectiveTransform(mods, 'auth')
 
 async function main() {
 	console.log('Starting server...')
@@ -34,8 +39,17 @@ async function main() {
 
 			const { url } = await startStandaloneServer(server, {
 				context: async ({ req }) => {
+					// console.log(req.headers)
+					const authorization = req.headers.authorization
+
+					let token: TokenResult
+					let user: UserDoc
+					token = verifyAccessToken(authorization)
+
 					return {
-						req,
+						authorization,
+						token,
+						user,
 					}
 				},
 				listen: {
